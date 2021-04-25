@@ -16,7 +16,7 @@
                         placeholder="请输入菜谱"
                         auto-focus
                         :border="true"
-                        :autosize="{ maxHeight: 400, minHeight: 100 }"
+                        :autosize="{ maxHeight: 300, minHeight: 100 }"
                     >
                     </van-field>
                 </van-cell-group>
