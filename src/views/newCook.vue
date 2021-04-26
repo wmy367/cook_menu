@@ -112,7 +112,17 @@ export default {
             ).catch(
                 // 记录失败原因
                 function(data){
-                    console.log(data)
+                    // console.log(data)
+                    Dialog.confirm({
+                        title: '上传失败',
+                        message: data.image_file,
+                        })
+                        .then(() => {
+                            // on confirm
+                        })
+                        .catch(() => {
+                            // on cancel
+                        });
                 }
             );
         },
