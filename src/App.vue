@@ -4,6 +4,7 @@
     <!-- <mt-search v-model="search_value" cancel-text="取消" placeholder="搜索" >
     </mt-search> -->
     <van-search 
+        v-if="!create_new_cook"
         v-model="search_value"
         :value="search_value" 
         shape="round"
@@ -32,10 +33,10 @@
 
     <van-dialog id="van-dialog" />
 
-    <van-tabbar v-model="active" @change="onChange">
+    <van-tabbar v-model="active" @change="onChange" v-if="!create_new_cook">
       <van-tabbar-item icon="home-o">主页</van-tabbar-item>
       <van-tabbar-item icon="plus">新建</van-tabbar-item>
-      <van-tabbar-item icon="search">搜索</van-tabbar-item>
+      <van-tabbar-item icon="search">其他</van-tabbar-item>
     </van-tabbar>
   </div>
 </template>
@@ -44,7 +45,9 @@ import Vue from 'vue';
 import newCook from "./views/newCook"
 import menuShow from "./views/menuShow"
 
-import { Toast, Dialog ,Search} from 'vant';
+// import { Toast, Dialog ,Search} from 'vant';
+import { Toast ,Search} from 'vant';
+
 import axios from 'axios'
 import { Tabbar, TabItem } from 'mint-ui';
 
@@ -116,21 +119,21 @@ export default {
           this.show_single_menu = false
           this.create_new_cook = true
       }else if(index === 2){
-        let _this = this
+        // let _this = this
 
-        Dialog.confirm({
-            title: '标题',
-            message: '弹窗内容',
-            })
-            .then(() => {
-                // on confirm
-                _this.create_new_cook = false
-                _this.menu_all_show = false
-                _this.show_single_menu = false
-            })
-            .catch(() => {
-                // on cancel
-            });
+        // Dialog.confirm({
+        //     title: '标题',
+        //     message: '弹窗内容',
+        //     })
+        //     .then(() => {
+        //         // on confirm
+        //         _this.create_new_cook = false
+        //         _this.menu_all_show = false
+        //         _this.show_single_menu = false
+        //     })
+        //     .catch(() => {
+        //         // on cancel
+        //     });
       }
     },
     onSearch(){

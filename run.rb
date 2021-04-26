@@ -196,7 +196,10 @@ class MyApp < Sinatra::Application
 
         cm = CookMenu.new 
         cfs = []
-        ((params['files'].is_a?(Array) && params['files']) || [params['files']]).each do |fn|
+        # puts params['files']
+        # ((params['files'].is_a?(Array) && params['files']) || [params['files']]).each do |fn|
+        params['files'].split(',').each do |fn|
+            # puts fn
             cf0 = CookImage.new 
             cf0.name = File.join($_api_root_path,"/cook_images/#{fn}")
             cfs << cf0 
@@ -207,7 +210,17 @@ class MyApp < Sinatra::Application
         cm.contect = params['contect']
         cm.cook_images = cfs
         cm.save
-        JSON.generate({status: true})
+
+        path = cm.default_image.cook_image.name
+        new_path = File.join("/images","shave_#{File.basename(path)}")
+
+        rel = {
+            contect: cm.contect,
+            path: new_path,
+            id: cm.id,
+            status: true
+        }
+        JSON.generate(rel)
     end
 
     post "/menus" do 

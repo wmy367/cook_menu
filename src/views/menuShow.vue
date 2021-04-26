@@ -1,21 +1,23 @@
 <template>
     <div class="menu_show">
         <div v-if="!show_single_menu">
-            <van-row class="list_menu" v-for="(item,i) in menu_list" :key="i" @click="show_contect(item.id)">
-                <van-col span="8" :offset="1">
-                    <van-image
-                        lazy-load
-                        width="6rem"
-                        height="6rem"
-                        fit="fill"
-                        :radius="6"
-                        :src="item.path"
-                        class="image_sh"
-                        />
-                </van-col>
-                <van-col class="show_contect" span="14" :offset="0">
-                    {{item.contect}}
-                </van-col>
+            <van-row class="list_menu" v-for="(item,i) in menu_list" :key="i" >
+                    <van-col span="8" :offset="0">
+                        <van-image
+                            lazy-load
+                            width="6rem"
+                            height="6rem"
+                            fit="fill"
+                            :radius="6"
+                            :src="item.path"
+                            class="image_sh"
+                            @click="show_contect(item.id)"
+                            />
+                    </van-col>
+                    <van-col class="show-contect" span="15" :offset="0" @click="show_contect(item.id)">
+                        {{contect_compact( item.contect)}}
+                    </van-col>
+                
             </van-row>
         </div>
          <div class="single_menu" v-if="show_single_menu">
@@ -76,6 +78,7 @@ export default {
                     
                     _this.menu_obj = res
                     _this.show_single_menu = true
+                    _this.$parent.active = 2
                 }else{
                     Toast.fail('系统异常')
                 }
@@ -85,17 +88,31 @@ export default {
                 //   reject(err)
                 console.log(err)
             });
+        },
+        contect_compact(ct){
+            if(ct.length > 100){
+                return ct.slice(0,96)+"..."
+            }else{
+                return ct
+            }
         }
+    },
+    computed:{
+        
     }
 }
 </script>
 
 <style>
 .list_menu{
-    margin: 2px 0px 2px 0px;
+    margin: 3px 0px 2px 0px;
 }
-.show_contect {
+.show-contect {
     text-align: left;
+    word-wrap: break-word;
+    border: 0.1rem solid #b5c9a9;
+    border-radius: 6px;
+    padding: 5px;
 }
 
 .image_sh{

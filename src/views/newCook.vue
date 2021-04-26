@@ -22,11 +22,21 @@
                 </van-cell-group>
             </van-col>
             
-            <van-col span="8" offset="8" style="margin-top:1rem;">
-                <van-button type="primary" round size="large" block @click="create_new">提交</van-button>
+            <van-col span="9" offset="2" style="margin-top:1rem;">
+                <van-button type="default" round  block @click="cancle_create_new">取消</van-button>
+            </van-col>
+            <van-col span="9" offset="2" style="margin-top:1rem;">
+                <van-button type="primary" round  block @click="create_new">提交</van-button>
             </van-col>
         </van-row>
-        
+        <!-- <van-tabbar v-model="active" >
+            <van-tabbar-item >
+                <van-button  round size="large" block @click="cancle_create_new">取消</van-button>
+            </van-tabbar-item>
+            <van-tabbar-item >
+                <van-button type="primary" round size="large" block @click="create_new">提交</van-button>
+            </van-tabbar-item>
+        </van-tabbar> -->
     </div>
 </template>
 
@@ -44,6 +54,7 @@ export default {
     name: 'newCook',
     data(){
         return {
+            active: 3,
             cook_flow: '',
             uploadDoneList: [],
             imageList: []
@@ -96,20 +107,43 @@ export default {
         },
         create_new(){
             let _this = this
-            
-            //把 uploadUrl 换成自己的 上传路径
-            _this.post("/create_menu", {files: _this.uploadDoneList ,contect: _this.cook_flow }).then(res => {
-                if(res ){
-                    _this.$parent.active = 0;
-                    Toast('成功')
-                }else{
-                    Toast.fail('系统异常')
-                }
-            }).catch(err => {
-                Toast.fail('js 异常')
-                //   reject(err)
-                console.log(err)
-            });
+            if(_this.cook_flow.length < 3 || _this.uploadDoneList.length){
+                Toast.fail('没有内容或没有图片')
+            }else{
+                //把 uploadUrl 换成自己的 上传路径
+                _this.post("/create_menu", {files: _this.uploadDoneList ,contect: _this.cook_flow }).then(res => {
+                    if(res ){
+                        // console.log(_this.uploadDoneList)
+                        _this.$parent.active = 2;
+                        _this.$parent.create_new_cook = false
+                        
+                        _this.active = 3
+                        _this.$parent.menu_list.unshift(res)
+                        _this.$parent.menu_all_show = true
+                        Toast('成功')
+                    }else{
+                        Toast.fail('系统异常')
+                    }
+                }).catch(err => {
+                    Toast.fail('js 异常')
+                    //   reject(err)
+                    console.log(err)
+                });
+            }
+        },
+        cancle_create_new(){
+            this.$parent.create_new_cook = false
+            this.$parent.menu_all_show = true
+            this.active = 3
+            this.$parent.active = 0
+        },
+        onChange(index){
+            if(index===0){
+                this.$parent.create_new_cook = false
+                this.active = 3
+            }else if(index===1){
+                this.create_new()
+            }
         }
     },
     computed:{

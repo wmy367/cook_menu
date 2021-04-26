@@ -8,7 +8,7 @@
                         :key="'sv_'+obj.id"
                         style="backgroud-color:#bbb"
                     >
-                        <van-image :src="obj.sv_path"/>
+                        <van-image :src="obj.sv_path" @click="previewImages(obj.path)" />
                     </van-grid-item>
                 </van-grid>
             </van-col>
@@ -18,6 +18,7 @@
                 {{menu_obj.contect}}
             </van-col>
         </van-row>
+
         
     </div>
 </template>
@@ -25,8 +26,10 @@
 <script>
 import Vue from 'vue';
 import { Toast } from 'vant';
+import { ImagePreview } from 'vant';
 
 Vue.use(Toast)
+Vue.use(ImagePreview)
 
 export default {
     name: 'singleMenu',
@@ -34,7 +37,14 @@ export default {
         menu_obj: Object
     },
     methods: {
+        previewImages(obj_img_path){
+            let showImagesUrl = [];   
+            showImagesUrl.push(obj_img_path)
         
+            ImagePreview(
+                showImagesUrl
+            );
+        },
     },
     computed:{
         textaere_heigt(){
@@ -55,5 +65,6 @@ export default {
     border: 0.2rem solid #bdb9b5;
     padding: 4px;
     border-radius: 4px;
+    word-wrap: break-word;
 }
 </style>
