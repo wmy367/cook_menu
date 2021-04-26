@@ -238,6 +238,9 @@ class MyApp < Sinatra::Application
         rels = []
 
         cms.each do |cm|
+            unless cm.default_image.cook_image
+                next 
+            end
             path = cm.default_image.cook_image.name
             new_path = File.join("/images","shave_#{File.basename(path)}")
             rels << {
