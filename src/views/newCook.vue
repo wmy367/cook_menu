@@ -42,7 +42,7 @@
 
 <script>
 import Vue from 'vue';
-import { Uploader } from 'vant';
+import { Uploader,Dialog} from 'vant';
 import { Toast } from 'vant';
 
 import upLoaderImg from "../js/upLoaderImg"
@@ -96,6 +96,17 @@ export default {
                     // console.log(data.status)
                     if(data.status){
                         _this.uploadDoneList.push(data.image_file)
+
+                        Dialog.confirm({
+                            title: '上传成功',
+                            message: data.image_file,
+                            })
+                            .then(() => {
+                                // on confirm
+                            })
+                            .catch(() => {
+                                // on cancel
+                            });
                     }
                 }
             ).catch(
