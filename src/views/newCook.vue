@@ -128,8 +128,10 @@ export default {
         },
         create_new(){
             let _this = this
-            if(_this.cook_flow.length < 3 || _this.uploadDoneList.length){
-                Toast.fail('没有内容或没有图片')
+            if(_this.cook_flow.length < 3){
+                Toast.fail('没有内容')
+            }else if( _this.uploadDoneList.length==0){
+                Toast.fail('没有图片')
             }else{
                 //把 uploadUrl 换成自己的 上传路径
                 _this.post("/create_menu", {files: _this.uploadDoneList ,contect: _this.cook_flow }).then(res => {
