@@ -4,7 +4,7 @@
     <!-- <mt-search v-model="search_value" cancel-text="取消" placeholder="搜索" >
     </mt-search> -->
     <van-search 
-        v-if="!create_new_cook"
+        v-if="van_tabbar_dialog"
         v-model="search_value"
         :value="search_value" 
         shape="round"
@@ -28,12 +28,12 @@
     </div> -->
 
     <div v-if="menu_all_show">
-        <menuShow ref="mlist" v-bind:menu_list="menu_list" v-bind:show_single_menu="show_single_menu"/>
+        <menuShow ref="mlist" v-bind:menu_list="menu_list" />
     </div>
 
     <van-dialog id="van-dialog" />
 
-    <van-tabbar v-model="active" @change="onChange" v-if="!create_new_cook">
+    <van-tabbar v-model="active" @change="onChange" v-if="van_tabbar_dialog">
       <van-tabbar-item icon="home-o">主页</van-tabbar-item>
       <van-tabbar-item icon="plus">新建</van-tabbar-item>
       <van-tabbar-item icon="search">其他</van-tabbar-item>
@@ -191,6 +191,11 @@ export default {
     },
     show_menu_tri(id){
         console.log(id)
+    }
+  },
+  computed:{
+    van_tabbar_dialog(){
+      return (!this.create_new_cook && !this.show_single_menu)
     }
   },
   watch:{

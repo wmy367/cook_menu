@@ -7,6 +7,10 @@ require 'sass'
 require_relative "./magick/image_proc"
 require 'yaml'
 require 'sinatra/log'
+require "image_optimizer"
+require "thread"
+
+$tdl = Mutex.new
 
 $user_params = YAML::load(File.open(File.join($_api_root_path,"./pass.yml")))
 $user_encrypt = {}
@@ -134,7 +138,8 @@ class MyApp < Sinatra::Application
 
     # set :bind,"127.0.0.1"
     set :bind,"0.0.0.0"
-    set :public_folder, File.join(File.dirname(__FILE__),'/public/dist')
+    # set :public_folder, File.join(File.dirname(__FILE__),'/public/dist')
+    set :public_folder, File.join(File.dirname(__FILE__),'/public/')
     set :port,8090
     # set :views, ['static','views']
     # set :views, ['views',"scss"]
@@ -185,6 +190,12 @@ class MyApp < Sinatra::Application
         File.open(origin_image,"wb") do |f|
             f.print(str)
         end
+
+        Thread.new do 
+            ImageOptimizer.new(origin_image, quality: 75, level: 2).optimize
+        end
+        # ImageOptimizer.new(origin_image, quality: 75, level: 2).optimize
+        # ImageOptimizer.new(origin_image).optimize
 
         mini_show_trans(origin_image)
 
@@ -262,6 +273,10 @@ class MyApp < Sinatra::Application
             # send_file File.join($_api_root_path,"/static/images/idle.png")
             ''
         end
+    end
+    ##获取logo
+    get "/logo.jpeg" do 
+        send_file File.join($_api_root_path,"/public/logo.jpeg")
     end
 
     ## 获取单个菜谱

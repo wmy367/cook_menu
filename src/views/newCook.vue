@@ -6,6 +6,8 @@
                     v-model='imageList'
                     :after-read="afterRead" 
                     multiple 
+                    accept="image"
+                    sizeType="compressed"
                     preview-size="99px"/>
             </van-col>
             <van-col span="24" offset="0">

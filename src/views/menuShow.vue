@@ -21,6 +21,11 @@
             </van-row>
         </div>
          <div class="single_menu" v-if="show_single_menu">
+             <van-nav-bar
+                left-text="返回"
+                left-arrow
+                @click-left="onClickLeft"
+                />
             <singleMenu v-bind:menu_obj="menu_obj"/>
         </div>
     </div>
@@ -38,11 +43,11 @@ export default {
     },
     props:{
         menu_list: Array,
-        show_single_menu: Boolean
+        // show_single_menu: Boolean
     },
     data(){
         return{
-            // show_single_menu: false,
+            show_single_menu: false,
             menu_obj: false
         }
     },
@@ -79,6 +84,7 @@ export default {
                     _this.menu_obj = res
                     _this.show_single_menu = true
                     _this.$parent.active = 2
+                    _this.$parent.show_single_menu = true
                 }else{
                     Toast.fail('系统异常')
                 }
@@ -95,6 +101,10 @@ export default {
             }else{
                 return ct
             }
+        },
+        onClickLeft(){
+            this.show_single_menu = false
+            this.$parent.show_single_menu = false
         }
     },
     computed:{
