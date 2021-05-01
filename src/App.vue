@@ -36,7 +36,7 @@
     <van-tabbar v-model="active" @change="onChange" v-if="van_tabbar_dialog">
       <van-tabbar-item icon="home-o">主页</van-tabbar-item>
       <van-tabbar-item icon="plus">新建</van-tabbar-item>
-      <van-tabbar-item icon="search">其他</van-tabbar-item>
+      <van-tabbar-item icon="star-o">收藏</van-tabbar-item>
     </van-tabbar>
   </div>
 </template>
@@ -73,7 +73,8 @@ export default {
       menu_list: [],
 
       show_single_menu: false,
-      menu_obj: false
+      menu_obj: false,
+      collect_menu_list: [],
     }
   },
   methods:{
@@ -119,21 +120,11 @@ export default {
           this.show_single_menu = false
           this.create_new_cook = true
       }else if(index === 2){
-        // let _this = this
-
-        // Dialog.confirm({
-        //     title: '标题',
-        //     message: '弹窗内容',
-        //     })
-        //     .then(() => {
-        //         // on confirm
-        //         _this.create_new_cook = false
-        //         _this.menu_all_show = false
-        //         _this.show_single_menu = false
-        //     })
-        //     .catch(() => {
-        //         // on cancel
-        //     });
+          // this.menu_list = this.collect_menu_list
+          this.create_new_cook = false
+          this.menu_all_show = true
+          this.show_single_menu = false
+          this.get_star_menu()
       }
     },
     onSearch(){
@@ -175,6 +166,24 @@ export default {
       this.create_new_cook = false
         let _this = this
         _this.post("/menus",{}).then(res => {
+            if(res ){
+                console.log(res)
+                _this.menu_list = res
+                _this.menu_all_show = true
+                Toast('成功')
+            }else{
+                Toast.fail('系统异常')
+            }
+        }).catch(err => {
+            Toast.fail('js 异常')
+            //   reject(err)
+            console.log(err)
+        });
+    },
+    get_star_menu(){
+        this.create_new_cook = false
+        let _this = this
+        _this.post("/get_star_menus",{}).then(res => {
             if(res ){
                 console.log(res)
                 _this.menu_list = res

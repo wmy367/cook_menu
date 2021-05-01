@@ -22,9 +22,11 @@
         </div>
          <div class="single_menu" v-if="show_single_menu">
              <van-nav-bar
+                :right-text="(menu_obj.star ? '取消收藏' : '收藏')"
                 left-text="返回"
                 left-arrow
                 @click-left="onClickLeft"
+                @click-right="onClickRight"
                 />
             <singleMenu v-bind:menu_obj="menu_obj"/>
         </div>
@@ -105,6 +107,36 @@ export default {
         onClickLeft(){
             this.show_single_menu = false
             this.$parent.show_single_menu = false
+            this.$parent.active = 0
+        },
+        onClickRight(){
+            let _this = this
+            if(this.menu_obj.star){
+                _this.post("/star_menu",{menu_id: _this.menu_obj.id }).then(res => {
+                    if(res ){
+                        Toast('取消收藏成功')
+                        _this.menu_obj.star = false
+                    }else{
+                        Toast.fail('系统异常')
+                    }
+                }).catch(err => {
+                    Toast.fail('js 异常')
+                    console.log(err)
+                });
+            }else{
+                _this.post("/star_menu",{star: true,menu_id: _this.menu_obj.id }).then(res => {
+                    if(res ){
+                        Toast('收藏成功')
+                        _this.menu_obj.star = true
+                    }else{
+                        Toast.fail('系统异常')
+                    }
+                }).catch(err => {
+                    Toast.fail('js 异常')
+                    console.log(err)
+                });
+
+            }
         }
     },
     computed:{

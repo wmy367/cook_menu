@@ -144,6 +144,7 @@ end
 
 $upload_images_hash = {}
 $database_hash = {}
+$star_collect = [] #menu id
 
 def get_ai_contect(image_path)
     url = URI.parse('http://127.0.0.1:30001/')
@@ -151,7 +152,7 @@ def get_ai_contect(image_path)
         req = Net::HTTP::Post::Multipart.new url.path,"file" => UploadIO.new(jpg, "image")
         contect = ''
         begin
-            res = Net::HTTP.start(url.host, url.port) do |http|
+            res = Net::HTTP.star(url.host, url.port) do |http|
                 contect =  http.request(req).body
             end
         rescue 
@@ -323,6 +324,7 @@ class MyApp < Sinatra::Application
             end
 
             rels << {
+                star: $star_collect.include?(cm.id),
                 contect: contect,
                 path: new_path,
                 id: cm.id
@@ -384,6 +386,7 @@ class MyApp < Sinatra::Application
             rels = {
                 status: true,
                 id: obj.id,
+                star: $star_collect.include?(obj.id),
                 contect: contect,
                 images: images,
                 default_image:{
@@ -396,6 +399,59 @@ class MyApp < Sinatra::Application
         end
     end
 
+    ## 收藏
+    post "/star_menu" do 
+        puts params
+        if params['star'] && !$star_collect.include?(params['menu_id'].to_i)
+            $star_collect << params['menu_id'].to_i
+            if $star_collect.size > 8
+                $star_collect = $star_collect[$star_collect.size-8,8]
+            end
+        end 
+
+        if !params['star'] 
+            $star_collect.reject! do |e|
+                e == params['menu_id'].to_i
+            end
+        end
+        
+        # puts $star_collect
+        JSON.generate( {'status': true ,'star_memus': $star_collect})
+    end
+
+    post "/get_star_menus" do 
+        # cms = findMenus(*args)
+        cms = $star_collect.map do |id|
+            CookMenu.find_by_id(id)
+        end
+
+        rels = []
+
+        cms.each do |cm|
+            unless cm.default_image.cook_image
+                next 
+            end
+            path = cm.default_image.cook_image.name
+            new_path = File.join("/images","shave_#{File.basename(path)}")
+            contect = '无'
+            if !cm.contect || cm.contect.size==0
+                contect = cm.cook_images.map do |e|
+                    e.ai_contect.to_s
+                end.join(' ')
+            else 
+                contect = cm.contect
+            end
+
+            rels << {
+                star: $star_collect.include?(cm.id),
+                contect: contect,
+                path: new_path,
+                id: cm.id
+            }
+        end
+
+        JSON.generate(rels)
+    end
     # get "/shavefeedimages/:name" do 
     #     fn = File.join($_api_root_path,"/shave_images/shave_#{params['name']}")
     #     if(File.exist? fn)
