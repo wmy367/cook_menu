@@ -446,6 +446,8 @@ class MyApp < Sinatra::Application
             CookMenu.find_by_id(id)
         end
 
+        cms.compact!
+
         rels = []
 
         cms.each do |cm|

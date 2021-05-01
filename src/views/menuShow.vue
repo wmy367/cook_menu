@@ -1,5 +1,5 @@
 <template>
-    <div class="menu_show">
+    <div id="menu_show" ref="menu_show">
         <div v-if="!show_single_menu">
             <van-row class="list_menu" v-for="(item,i) in menu_list" :key="i" >
                     <van-col span="8" :offset="0">
@@ -50,7 +50,8 @@ export default {
     data(){
         return{
             show_single_menu: false,
-            menu_obj: false
+            menu_obj: false,
+            mlist_scrollTop:0
         }
     },
     methods:{
@@ -80,6 +81,11 @@ export default {
         },
         show_contect(i){
             let _this = this 
+            // this.$parent.mlist_scrollTop = this.$parent.$refs.mlist.scrollTop
+            this.mlist_scrollTop = this.$refs.menu_show.scrollTop
+            // console.log(this.$refs.menu_show.scrollTop)
+            // console.log(document.getElementById('menu_show').scrollTop)
+            // console.log(event.target.top)
             _this.post("/singleMenu",{id: i}).then(res => {
                 if(res ){
                     
@@ -108,6 +114,8 @@ export default {
             this.show_single_menu = false
             this.$parent.show_single_menu = false
             this.$parent.active = 0
+            // this.$parent.$refs.mlist.scrollTop = this.$parent.mlist_scrollTop
+            this.$refs.menu_show.scrollTop = this.mlist_scrollTop
         },
         onClickRight(){
             let _this = this
