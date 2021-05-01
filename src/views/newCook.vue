@@ -39,6 +39,13 @@
                 <van-button type="primary" round size="large" block @click="create_new">提交</van-button>
             </van-tabbar-item>
         </van-tabbar> -->
+        <van-overlay :show="loading" >
+            <div class="wrapper">
+                <div class="block" catch:tap="noop" >
+                    <van-loading size="100px">上传中...</van-loading>
+                </div>
+            </div>
+        </van-overlay>
     </div>
 </template>
 
@@ -59,7 +66,8 @@ export default {
             active: 3,
             cook_flow: '',
             uploadDoneList: [],
-            imageList: []
+            imageList: [],
+            loading: false
         }
     },
     methods: {
@@ -90,25 +98,23 @@ export default {
         afterRead(file){
             // console.log(file)
             let _this = this
+            this.loading = true
             let uploadImg = upLoaderImg(file.file)//使用上传的方法。file.file
             uploadImg.then(
                 // 记录填充值
                 function(data){
                     // console.log(data)
                     // console.log(data.status)
+                    _this.loading = false
                     if(data.status){
                         _this.uploadDoneList.push(data.image_file)
-
-                        Dialog.confirm({
-                            title: '上传成功',
-                            message: data.image_file,
+                        _this.loading = false
+                        Dialog.alert({
+                            message: "如果不输入内容，则默认采用自动识别出来的文字！",
                             })
                             .then(() => {
                                 // on confirm
                             })
-                            .catch(() => {
-                                // on cancel
-                            });
                     }
                 }
             ).catch(
@@ -130,9 +136,9 @@ export default {
         },
         create_new(){
             let _this = this
-            if(_this.cook_flow.length < 3){
+            if(_this.cook_flow.length > 30000){
                 Toast.fail('没有内容')
-            }else if( _this.uploadDoneList.length==0){
+            }else if( _this.uploadDoneList.length==0 ){
                 Toast.fail('没有图片')
             }else{
                 //把 uploadUrl 换成自己的 上传路径
@@ -169,6 +175,9 @@ export default {
             }else if(index===1){
                 this.create_new()
             }
+        },
+        noop(){
+
         }
     },
     computed:{
@@ -188,5 +197,18 @@ export default {
 <style >
 #new_cook {
     max-height: 30%;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.block {
+  width: 120px;
+  height: 120px;
+  background-color: #fff;
 }
 </style>

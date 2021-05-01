@@ -9,6 +9,7 @@ require 'yaml'
 require 'sinatra/log'
 require "image_optimizer"
 require "thread"
+require 'net/http/post/multipart'
 
 $tdl = Mutex.new
 
@@ -109,8 +110,18 @@ def findMenus(*args)
         CookMenu.find_each do |e|
             index = 0
             score = 0
+            cm = e
             args.each do |a|
-                if e.contect.include? a
+                contect = '无'
+                if !cm.contect || cm.contect.size==0
+                    contect = cm.cook_images.map do |e|
+                        e.ai_contect.to_s
+                    end.join(' ')
+                else 
+                    contect = cm.contect
+                end
+                
+                if contect.include? a
                     score += (args.size - index)
                 end
                 index += 1
@@ -127,6 +138,32 @@ def findMenus(*args)
 
         rels.map do |e|
             e[1]
+        end
+    end
+end
+
+$upload_images_hash = {}
+$database_hash = {}
+
+def get_ai_contect(image_path)
+    url = URI.parse('http://127.0.0.1:30001/')
+    File.open(image_path) do |jpg|
+        req = Net::HTTP::Post::Multipart.new url.path,"file" => UploadIO.new(jpg, "image")
+        contect = ''
+        begin
+            res = Net::HTTP.start(url.host, url.port) do |http|
+                contect =  http.request(req).body
+            end
+        rescue 
+            contect = "AI识别异常"
+        end
+        puts contect
+
+        # puts res.response
+        if contect =~ /<div>(?<cc>.+)<\/div>/m
+            return $~[:cc]
+        else 
+            return ''
         end
     end
 end
@@ -193,12 +230,26 @@ class MyApp < Sinatra::Application
 
         Thread.new do 
             ImageOptimizer.new(origin_image, quality: 75, level: 2).optimize
+            contect = get_ai_contect(origin_image)
+            contect = contect.force_encoding("UTF-8")
+            if $database_hash[origin_image]
+                obj = CookImage.find_by_name(origin_image)
+                puts "AI 滞后"
+                if obj 
+                    obj.ai_contect = contect
+                    obj.save 
+                    $database_hash[origin_image] = nil
+                    puts "保存成功"
+                end
+            else
+                $upload_images_hash[origin_image] = contect
+            end
         end
         # ImageOptimizer.new(origin_image, quality: 75, level: 2).optimize
         # ImageOptimizer.new(origin_image).optimize
 
         mini_show_trans(origin_image)
-
+        # sleep(4)
         JSON.generate({status: true,image_file: File.basename(filepath)})
     end
 
@@ -213,6 +264,14 @@ class MyApp < Sinatra::Application
             # puts fn
             cf0 = CookImage.new 
             cf0.name = File.join($_api_root_path,"/cook_images/#{fn}")
+
+            if $upload_images_hash[cf0.name]
+                cf0.ai_contect = $upload_images_hash[cf0.name]
+                $upload_images_hash[cf0.name]
+            else 
+                $database_hash[cf0.name] = cf0
+            end
+
             cfs << cf0 
         end
 
@@ -254,8 +313,17 @@ class MyApp < Sinatra::Application
             end
             path = cm.default_image.cook_image.name
             new_path = File.join("/images","shave_#{File.basename(path)}")
+            contect = '无'
+            if !cm.contect || cm.contect.size==0
+                contect = cm.cook_images.map do |e|
+                    e.ai_contect.to_s
+                end.join(' ')
+            else 
+                contect = cm.contect
+            end
+
             rels << {
-                contect: cm.contect,
+                contect: contect,
                 path: new_path,
                 id: cm.id
             }
@@ -303,10 +371,20 @@ class MyApp < Sinatra::Application
                 }
             end
 
+            contect = '无'
+            cm = obj
+            if !cm.contect || cm.contect.size==0
+                contect = cm.cook_images.map do |e|
+                    e.ai_contect.to_s
+                end.join(' ')
+            else 
+                contect = cm.contect
+            end
+
             rels = {
                 status: true,
                 id: obj.id,
-                contect: obj.contect,
+                contect: contect,
                 images: images,
                 default_image:{
                     id: obj.default_image.id,

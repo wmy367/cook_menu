@@ -35,4 +35,6 @@ module WmyCookDB
 
 end
 
+# ActiveRecord::Base.allow_concurrency = true
+
 

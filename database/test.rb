@@ -31,4 +31,10 @@ def test
     cm.save 
 end
 
-test
+def test1()
+    puts CookImage.find_by_ai_contect('ok').name
+end
+
+# test
+
+test1
