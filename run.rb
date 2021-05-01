@@ -352,7 +352,7 @@ class MyApp < Sinatra::Application
     ## 获取单个菜谱
     post "/singleMenu" do 
         menu_id = params['id']
-        obj = CookMenu.find(menu_id)
+        obj = CookMenu.find_by_id(menu_id)
 
         unless obj 
             JSON.generate({'status': false, 'info': "没有找到对象"})
@@ -391,13 +391,34 @@ class MyApp < Sinatra::Application
                 images: images,
                 default_image:{
                     id: obj.default_image.id,
-                    path: "/images/" + obj.default_image.cook_image.name,
-                    sv_path: "/images/shave_" + obj.default_image.cook_image.name
+                    path: "/images/" + File.basename(obj.default_image.cook_image.name),
+                    sv_path: "/images/shave_" + File.basename(obj.default_image.cook_image.name)
                 }
             }
             JSON.generate( rels )
         end
     end
+
+    ## 删除
+    post "/del_menu" do 
+        obj = CookMenu.find_by_id(params['menu_id'].to_s)
+        if obj 
+            obj.cook_images.each do |e|
+                filep = e.name 
+                if File.exist?(filep) && File.file?(filep)
+                    File.delete filep
+                end
+                filepx = File.join( File.dirname(e.name), "shave_#{File.basename(e.name)}")
+
+                if File.exist?(filepx) && File.file?(filepx)
+                    File.delete filepx 
+                end
+            end
+            obj.destroy
+        end
+        JSON.generate( {status: true} )
+    end
+
 
     ## 收藏
     post "/star_menu" do 

@@ -10,6 +10,8 @@
                     sizeType="compressed"
                     preview-size="99px"/>
             </van-col>
+        </van-row>
+        <van-row>
             <van-col span="24" offset="0">
                 <van-cell-group>
                     <van-field
@@ -23,7 +25,8 @@
                     </van-field>
                 </van-cell-group>
             </van-col>
-            
+        </van-row>
+        <van-row>
             <van-col span="9" offset="2" style="margin-top:1rem;">
                 <van-button type="default" round  block @click="cancle_create_new">取消</van-button>
             </van-col>
