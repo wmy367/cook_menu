@@ -102,9 +102,12 @@ end
 
 
 def findMenus(*args)
-    puts args
+    return findMenus_verb(0,*args)
+end
+
+def findMenus_verb(offset,*args)
     if args.empty? 
-        return CookMenu.order(:updated_at => :desc).offset(0).first(1000)
+        return CookMenu.order(:updated_at => :desc).offset( (offset || 0).to_i ).first(6)
     else 
         rels = []
         CookMenu.find_each do |e|
@@ -152,7 +155,7 @@ def get_ai_contect(image_path)
         req = Net::HTTP::Post::Multipart.new url.path,"file" => UploadIO.new(jpg, "image")
         contect = ''
         begin
-            res = Net::HTTP.star(url.host, url.port) do |http|
+            res = Net::HTTP.start(url.host, url.port) do |http|
                 contect =  http.request(req).body
             end
         rescue 
@@ -304,7 +307,7 @@ class MyApp < Sinatra::Application
             args = []
         end
 
-        cms = findMenus(*args)
+        cms = findMenus_verb(params['offset'] || 0,*args)
 
         rels = []
 

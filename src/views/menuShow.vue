@@ -1,7 +1,15 @@
 <template>
     <div id="menu_show" ref="menu_show">
-        <div v-if="!show_single_menu">
-            <van-row class="list_menu" v-for="(item,i) in menu_list" :key="i" >
+        <van-list 
+            v-if="!show_single_menu"
+            v-model="loading"
+            :finished="finished"
+            finished-text="没有更多了"
+            :immediate-check="false"
+            @load="onLoad"
+        >
+        <van-cell v-for="(item,i) in menu_list" :key="i">
+            <van-row class="list_menu"  >
                     <van-col span="8" :offset="0">
                         <van-image
                             lazy-load
@@ -19,7 +27,8 @@
                     </van-col>
                 
             </van-row>
-        </div>
+        </van-cell>
+        </van-list>
          <div class="single_menu" v-if="show_single_menu">
              <van-nav-bar
                 :right-text="(menu_obj.star ? '取消收藏' : '收藏')"
@@ -51,7 +60,10 @@ export default {
         return{
             show_single_menu: false,
             menu_obj: false,
-            mlist_scrollTop:0
+            mlist_scrollTop:0,
+
+            finished: false,
+            loading: false
         }
     },
     methods:{
@@ -145,6 +157,30 @@ export default {
                 });
 
             }
+        },
+        onLoad(){
+            let _this = this
+            // console.log("00000")
+            _this.loading = true
+            _this.post("/menus",{offset: _this.$parent.menu_list.length }).then(res => {
+                if(res ){
+                    _this.loading = false  
+                    _this.finished = false
+                    _this.$parent.menu_list = _this.$parent.menu_list.concat(res)
+                    // _this.finished = true
+                    _this.$parent.menu_all_show = true
+                    if(res.length === 0){
+                        _this.finished = true
+                    }
+                }else{
+                    Toast.fail('系统异常')
+                    _this.finished = false
+                }
+            }).catch(err => {
+                Toast.fail('js 异常')
+                console.log(err)
+                _this.finished = true
+            });
         }
     },
     computed:{
