@@ -3,7 +3,7 @@
         <van-list 
             v-if="!show_single_menu"
             v-model="loading"
-            :finished="finished"
+            :finished="finished || force_finished"
             finished-text="没有更多了"
             :immediate-check="false"
             @load="onLoad"
@@ -54,6 +54,7 @@ export default {
     },
     props:{
         menu_list: Array,
+        force_finished: Boolean,
         // show_single_menu: Boolean
     },
     data(){

@@ -28,7 +28,7 @@
     </div> -->
 
     <div v-if="menu_all_show">
-        <menuShow ref="mlist" v-bind:menu_list="menu_list" />
+        <menuShow ref="mlist" v-bind:menu_list="menu_list" v-bind:force_finished="force_finished"/>
     </div>
 
     <van-dialog id="van-dialog" />
@@ -75,6 +75,8 @@ export default {
       show_single_menu: false,
       menu_obj: false,
       collect_menu_list: [],
+
+      force_finished: false // 控制收藏下拉
     }
   },
   methods:{
@@ -114,6 +116,7 @@ export default {
         // this.$nextTick(() => {})
         // this.$ref.mlist.show_single_menu = false
         this.show_single_menu = false
+        this.force_finished = false
         this.create_menu()
       }else if(index===1){
           this.menu_all_show = false
@@ -182,6 +185,7 @@ export default {
     },
     get_star_menu(){
         this.create_new_cook = false
+        this.force_finished = true
         let _this = this
         _this.post("/get_star_menus",{}).then(res => {
             if(res ){
