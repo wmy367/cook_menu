@@ -24,3 +24,4 @@ pnpm-debug.log*
 
 *sqlite3
 /cook_images/*
+/*.txt
