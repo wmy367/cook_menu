@@ -107,13 +107,16 @@ end
 
 def findMenus_verb(offset,*args)
     if args.empty? 
-        return CookMenu.order(:updated_at => :desc).offset( (offset || 0).to_i ).first(6)
+        return CookMenu.where(del: nil).order(:updated_at => :desc).offset( (offset || 0).to_i ).first(6)
     else 
         rels = []
         CookMenu.find_each do |e|
             index = 0
             score = 0
             cm = e
+            if e.del 
+                next 
+            end
             args.each do |a|
                 contect = '无'
                 if !cm.contect || cm.contect.size==0
@@ -406,18 +409,20 @@ class MyApp < Sinatra::Application
     post "/del_menu" do 
         obj = CookMenu.find_by_id(params['menu_id'].to_s)
         if obj 
-            obj.cook_images.each do |e|
-                filep = e.name 
-                if File.exist?(filep) && File.file?(filep)
-                    File.delete filep
-                end
-                filepx = File.join( File.dirname(e.name), "shave_#{File.basename(e.name)}")
+            # obj.cook_images.each do |e|
+            #     filep = e.name 
+            #     if File.exist?(filep) && File.file?(filep)
+            #         File.delete filep
+            #     end
+            #     filepx = File.join( File.dirname(e.name), "shave_#{File.basename(e.name)}")
 
-                if File.exist?(filepx) && File.file?(filepx)
-                    File.delete filepx 
-                end
-            end
-            obj.destroy
+            #     if File.exist?(filepx) && File.file?(filepx)
+            #         File.delete filepx 
+            #     end
+            # end
+            # obj.destroy
+            obj.del = true 
+            obj.save
         end
         JSON.generate( {status: true} )
     end

@@ -132,6 +132,7 @@ export default {
     },
     onSearch(){
         let _this = this
+        this.force_finished = true
         // console.log(909090)
         _this.menu_list = []
         _this.active = 2

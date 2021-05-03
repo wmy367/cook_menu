@@ -45,7 +45,7 @@
         <van-overlay :show="loading" >
             <div class="wrapper">
                 <div class="block" catch:tap="noop" >
-                    <van-loading size="100px">上传中...</van-loading>
+                    <van-loading size="100px">{{loading_text}}</van-loading>
                 </div>
             </div>
         </van-overlay>
@@ -70,7 +70,8 @@ export default {
             cook_flow: '',
             uploadDoneList: [],
             imageList: [],
-            loading: false
+            loading: false,
+            loading_text: '上传中...'
         }
     },
     methods: {
@@ -102,6 +103,7 @@ export default {
             // console.log(file)
             let _this = this
             this.loading = true
+            this.loading_text = "上传中..."
             let uploadImg = upLoaderImg(file.file)//使用上传的方法。file.file
             uploadImg.then(
                 // 记录填充值
@@ -124,6 +126,7 @@ export default {
                 // 记录失败原因
                 function(data){
                     // console.log(data)
+                    _this.loading = false
                     Dialog.confirm({
                         title: '上传失败',
                         message: data.image_file,
@@ -139,6 +142,8 @@ export default {
         },
         create_new(){
             let _this = this
+            this.loading_text = "提交中..."
+            this.loading = true
             if(_this.cook_flow.length > 30000){
                 Toast.fail('没有内容')
             }else if( _this.uploadDoneList.length==0 ){
@@ -148,6 +153,8 @@ export default {
                 _this.post("/create_menu", {files: _this.uploadDoneList ,contect: _this.cook_flow }).then(res => {
                     if(res ){
                         // console.log(_this.uploadDoneList)
+                        _this.loading = false
+
                         _this.$parent.active = 2;
                         _this.$parent.create_new_cook = false
                         
@@ -156,9 +163,11 @@ export default {
                         _this.$parent.menu_all_show = true
                         Toast('成功')
                     }else{
+                        _this.loading = false
                         Toast.fail('系统异常')
                     }
                 }).catch(err => {
+                    _this.loading = false
                     Toast.fail('js 异常')
                     //   reject(err)
                     console.log(err)
